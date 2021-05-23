@@ -24,7 +24,7 @@ class Engine {
         this.lastFrame = now;
         let iterations = 0 | 0;
 
-        while (delta > this.tickRate && ++iterations < this.frameSkip) {
+        while (delta > this.tickRate && iterations++ < this.frameSkip) {
             update(this.tickRate);
             delta -= this.tickRate;
         }

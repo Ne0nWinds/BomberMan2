@@ -6,11 +6,17 @@ const canvas = document.body.firstElementChild;
 const gl = canvas.getContext("webgl2");
 
 function resizeCanvas() {
+    gl.useProgram(shaderProgram);
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     gl.viewport(0, 0, canvas.width, canvas.height);
+    const projectionMatrix = gl.getUniformLocation(shaderProgram, "projection");
+    gl.uniformMatrix4fv(
+        projectionMatrix,
+        false,
+        Matrix4x4.orthographic(-canvas.width / 2, canvas.width / 2, -canvas.height / 2, canvas.height / 2, 0.1, 100.0).data
+    );
 }
-resizeCanvas();
 window.onresize = resizeCanvas;
 
 function loadShader(type, src) {
@@ -56,8 +62,10 @@ const shaderProgram = gl.createProgram();
 
         varying vec2 vTextureCoord;
 
+        uniform mat4 projection;
+
         void main() {
-            gl_Position = vec4(aVertexPosition, 1.0);
+            gl_Position = projection * vec4(aVertexPosition, 1.0);
             vTextureCoord = aTextureCoord;
         }
     `;
@@ -75,12 +83,13 @@ const shaderProgram = gl.createProgram();
     gl.attachShader(shaderProgram, loadShader(gl.FRAGMENT_SHADER, fragmentSrc));
     gl.linkProgram(shaderProgram);
 }
+resizeCanvas();
 
 const vertices = new Float32Array([
-    0.5,  0.5, 0.0,     0.0, 0.0,
-    0.5, -0.5, 0.0,     0.0, 1.0,
-    -0.5, -0.5, 0.0,    1.0, 1.0,
-    -0.5,  0.5, 0.0,    1.0, 0.0
+    100.0,  100.0, -1.0,     0.0, 0.0,
+    100.0, -100.0, -1.0,     0.0, 1.0,
+    -100.0, -100.0, -1.0,    1.0, 1.0,
+    -100.0,  100.0, -1.0,    1.0, 0.0
 ]);
 const indices = new Uint32Array([
     0, 1, 3,
@@ -110,6 +119,8 @@ gl.enableVertexAttribArray(1);
 gl.bindBuffer(gl.ARRAY_BUFFER, undefined);
 
 gl.bindVertexArray(undefined);
+
+resizeCanvas();
 
 const update = (delta) => { }
 const render = (interp) => {
