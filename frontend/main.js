@@ -10,11 +10,10 @@ function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     gl.viewport(0, 0, canvas.width, canvas.height);
-    const projectionMatrix = gl.getUniformLocation(shaderProgram, "projection");
     gl.uniformMatrix4fv(
-        projectionMatrix,
+        gl.getUniformLocation(shaderProgram, "projection"),
         false,
-        Matrix4x4.orthographic(-canvas.width / 2, canvas.width / 2, -canvas.height / 2, canvas.height / 2, 0.1, 100.0).data
+        Matrix4x4.orthographic(-canvas.width / 128, canvas.width / 128, -canvas.height / 128, canvas.height / 128, 0.1, 100.0),
     );
 }
 window.onresize = resizeCanvas;
@@ -63,9 +62,10 @@ const shaderProgram = gl.createProgram();
         varying vec2 vTextureCoord;
 
         uniform mat4 projection;
+        uniform mat4 translation;
 
         void main() {
-            gl_Position = projection * vec4(aVertexPosition, 1.0);
+            gl_Position = projection * translation * vec4(aVertexPosition, 1.0);
             vTextureCoord = aTextureCoord;
         }
     `;
@@ -83,13 +83,12 @@ const shaderProgram = gl.createProgram();
     gl.attachShader(shaderProgram, loadShader(gl.FRAGMENT_SHADER, fragmentSrc));
     gl.linkProgram(shaderProgram);
 }
-resizeCanvas();
 
 const vertices = new Float32Array([
-    100.0,  100.0, -1.0,     0.0, 0.0,
-    100.0, -100.0, -1.0,     0.0, 1.0,
-    -100.0, -100.0, -1.0,    1.0, 1.0,
-    -100.0,  100.0, -1.0,    1.0, 0.0
+    1.0,  1.0, -1.0,     0.0, 0.0,
+    1.0, -1.0, -1.0,     0.0, 1.0,
+    -1.0, -1.0, -1.0,    1.0, 1.0,
+    -1.0,  1.0, -1.0,    1.0, 0.0
 ]);
 const indices = new Uint32Array([
     0, 1, 3,
@@ -122,8 +121,15 @@ gl.bindVertexArray(undefined);
 
 resizeCanvas();
 
-const update = (delta) => { }
+const update = (delta) => {
+
+}
 const render = (interp) => {
+    gl.uniformMatrix4fv(
+        gl.getUniformLocation(shaderProgram, "translation"),
+        false,
+        Matrix4x4.translate(3, 3)
+    );
     gl.clearColor(0.1, 0.1, 0.1, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(shaderProgram);
