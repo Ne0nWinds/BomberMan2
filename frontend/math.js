@@ -28,11 +28,58 @@ class Matrix4x4 {
         m[15] = 1.0;
         return m;
     }
-    static translate(x, y) {
+    static translate(v2) {
         const m = this.identity();
-        m[12] = x;
-        m[13] = y;
+        m[12] = v2.x;
+        m[13] = v2.y;
         m[14] = -1;
         return m;
+    }
+}
+
+class Vector2 {
+    constructor(x, y) {
+        this.data = new Float32Array(2);
+        this.data[0] = x;
+        this.data[1] = y;
+    }
+    get x() {
+        return this.data[0];
+    }
+    get y() {
+        return this.data[1];
+    }
+    set x(value) {
+        this.data[0] = value;
+    }
+    set y(value) {
+        this.data[1] = value;
+    }
+    magnitude() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+    normalize() {
+        const m = this.magnitude();
+        this.scale(m);
+    }
+    scale(s) {
+        this.x *= s;
+        this.y *= s;
+    }
+    div(v2) {
+        this.x /= v2.x;
+        this.y /= v2.y;
+    }
+    mul(v2) {
+        this.x *= v2.x;
+        this.y *= v2.y;
+    }
+    add(v2) {
+        this.x += v2.x;
+        this.y += v2.y;
+    }
+    sub(v2) {
+        this.x -= v2.x;
+        this.y -= v2.y;
     }
 }

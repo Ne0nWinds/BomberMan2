@@ -183,21 +183,21 @@ resizeCanvas();
 const update = (delta) => {
 
 }
-let x = 0, y = 0;
+
+const movementVector = new Vector2(0.0, 0.0);
 const render = (interp) => {
     const primaryGamepad = navigator.getGamepads()[0];
     if (primaryGamepad) {
-        if (Math.abs(primaryGamepad.axes[0]) > 0.25) {
-            x += (primaryGamepad) ? primaryGamepad.axes[0] * 0.5 : 0;
-        }
-        if (Math.abs(primaryGamepad.axes[1]) > 0.25) {
-            y += (primaryGamepad) ? -primaryGamepad.axes[1] * 0.5 : 0;
+        const gamepadVector = new Vector2(-primaryGamepad.axes[0], primaryGamepad.axes[1]);
+        gamepadVector.normalize();
+        if (gamepadVector.magnitude() > 0.17) {
+            movementVector.add(gamepadVector);
         }
     }
     gl.uniformMatrix4fv(
         gl.getUniformLocation(shaderProgram, "translation"),
         false,
-        Matrix4x4.translate(x, y)
+        Matrix4x4.translate(movementVector)
     );
     gl.clearColor(0.1, 0.1, 0.1, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
