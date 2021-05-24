@@ -13,7 +13,7 @@ function resizeCanvas() {
     gl.uniformMatrix4fv(
         gl.getUniformLocation(shaderProgram, "projection"),
         false,
-        Matrix4x4.orthographic(-canvas.width / 128, canvas.width / 128, -canvas.height / 128, canvas.height / 128, 0.1, 100.0),
+        Matrix4x4.orthographic(-canvas.width / 256, canvas.width / 256, -canvas.height / 256, canvas.height / 256, 0.1, 100.0),
     );
 }
 window.onresize = resizeCanvas;
@@ -84,16 +84,75 @@ const shaderProgram = gl.createProgram();
     gl.linkProgram(shaderProgram);
 }
 
-const vertices = new Float32Array([
-    1.0,  1.0, -1.0,     0.0, 0.0,
-    1.0, -1.0, -1.0,     0.0, 1.0,
-    -1.0, -1.0, -1.0,    1.0, 1.0,
-    -1.0,  1.0, -1.0,    1.0, 0.0
-]);
-const indices = new Uint32Array([
-    0, 1, 3,
-    1, 2, 3,
-]);
+const map = new Uint8Array(32 * 32);
+for (let i = 0 | 0; i < 32; ++i) {
+    for (let j = 0 | 0; j < 32; ++j) {
+        map[i * 32 + j] = (i % 2 ^ j % 2);
+    }
+}
+
+const vertices = new Float32Array(145 * 5 * 4);
+for (let i = 0; i < vertices.length; i += 20) {
+    const loc = Math.floor(i / 20);
+    const y = Math.floor(loc / 15);
+    const x = loc % 15;
+    vertices[i + 0] = x + 1.0;
+    vertices[i + 1] = y + 1.0;
+    vertices[i + 2] = -1.0;
+    vertices[i + 3] = 0.0;
+    vertices[i + 4] = 0.0;
+
+    vertices[i + 5] = x + 1.0;
+    vertices[i + 6] = y;
+    vertices[i + 7] = -1.0;
+    vertices[i + 8] = 0.0;
+    vertices[i + 9] = 1.0;
+
+    vertices[i + 10] = x;
+    vertices[i + 11] = y;
+    vertices[i + 12] = -1.0;
+    vertices[i + 13] = 1.0;
+    vertices[i + 14] = 1.0;
+
+    vertices[i + 15] = x;
+    vertices[i + 16] = y + 1.0;
+    vertices[i + 17] = -1.0;
+    vertices[i + 18] = 1.0;
+    vertices[i + 19] = 0.0;
+}
+
+const indices = new Uint32Array(145 * 6);
+const baseIndices = new Uint32Array([0, 1, 3, 1, 2, 3]);
+for (let i = 0 | 0; i < 145; ++i) {
+    const index = i * 6;
+    indices[index + 0] = baseIndices[0] + i * 4;
+    indices[index + 1] = baseIndices[1] + i * 4;
+    indices[index + 2] = baseIndices[2] + i * 4;
+    indices[index + 3] = baseIndices[3] + i * 4;
+    indices[index + 4] = baseIndices[4] + i * 4;
+    indices[index + 5] = baseIndices[5] + i * 4;
+}
+// const vertices = new Float32Array([
+//     1.0,    1.0, -1.0,      0.0, 0.0,
+//     1.0,    -1.0, -1.0,     0.0, 1.0,
+//     -1.0,   -1.0, -1.0,     1.0, 1.0,
+//     -1.0,   1.0, -1.0,      1.0, 0.0,
+// 
+//     3.0,    3.0, -1.0,      0.0, 0.0,
+//     3.0,    1.0, -1.0,      0.0, 1.0,
+//     1.0,    1.0, -1.0,      1.0, 1.0,
+//     1.0,    3.0, -1.0,      1.0, 0.0
+// ]);
+// const indices = new Uint32Array([
+//     0, 1, 3,
+//     1, 2, 3,
+// 
+//     4, 5, 7,
+//     5, 6, 7,
+//
+//     8, 9, 11,
+//     9, 10, 11,
+// ]);
 
 const texture = loadTexture(document.getElementsByTagName('img')[0]);
 
@@ -124,18 +183,28 @@ resizeCanvas();
 const update = (delta) => {
 
 }
+let x = 0, y = 0;
 const render = (interp) => {
+    const primaryGamepad = navigator.getGamepads()[0];
+    if (primaryGamepad) {
+        if (Math.abs(primaryGamepad.axes[0]) > 0.25) {
+            x += (primaryGamepad) ? primaryGamepad.axes[0] * 0.5 : 0;
+        }
+        if (Math.abs(primaryGamepad.axes[1]) > 0.25) {
+            y += (primaryGamepad) ? -primaryGamepad.axes[1] * 0.5 : 0;
+        }
+    }
     gl.uniformMatrix4fv(
         gl.getUniformLocation(shaderProgram, "translation"),
         false,
-        Matrix4x4.translate(3, 3)
+        Matrix4x4.translate(x, y)
     );
     gl.clearColor(0.1, 0.1, 0.1, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(shaderProgram);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.bindVertexArray(VAO);
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0);
+    gl.drawElements(gl.TRIANGLES, 6 * 145, gl.UNSIGNED_INT, 0);
 }
 const engine = new Engine(update, render, 1000.0 / 120.0);
 engine.start();
