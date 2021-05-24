@@ -33,12 +33,14 @@ function loadShader(type, src) {
     return shader;
 }
 
-function loadTexture(img) {
+function loadTexture(url) {
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
 
+    const img = new Image();
+    img.src = url;
     img.onload = () => {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
 
@@ -154,7 +156,7 @@ for (let i = 0 | 0; i < 145; ++i) {
 //     9, 10, 11,
 // ]);
 
-const texture = loadTexture(document.getElementsByTagName('img')[0]);
+const texture = loadTexture("img/crate.png");
 
 const VBO = gl.createBuffer();
 const EBO = gl.createBuffer();
