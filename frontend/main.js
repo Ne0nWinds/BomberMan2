@@ -9,11 +9,11 @@ function resizeCanvas() {
     gl.useProgram(shaderProgram);
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
     gl.uniformMatrix4fv(
         gl.getUniformLocation(shaderProgram, "projection"),
         false,
-        Matrix4x4.orthographic(-canvas.width / 256, canvas.width / 256, -canvas.height / 256, canvas.height / 256, 0.1, 100.0),
+        Matrix4x4.orthographic(-canvas.clientWidth / 256 / devicePixelRatio, canvas.clientWidth / 256 / devicePixelRatio, -canvas.clientHeight / 256 / devicePixelRatio, canvas.clientHeight / 256 / devicePixelRatio, 0.1, 100.0)
     );
 }
 window.onresize = resizeCanvas;
@@ -183,23 +183,14 @@ gl.bindVertexArray(undefined);
 resizeCanvas();
 
 const update = (delta) => {
-
+    input.update();
 }
 
-const movementVector = new Vector2(0.0, 0.0);
 const render = (interp) => {
-    const primaryGamepad = navigator.getGamepads()[0];
-    if (primaryGamepad) {
-        const gamepadVector = new Vector2(-primaryGamepad.axes[0], primaryGamepad.axes[1]);
-        gamepadVector.normalize();
-        if (gamepadVector.magnitude() > 0.17) {
-            movementVector.add(gamepadVector);
-        }
-    }
     gl.uniformMatrix4fv(
         gl.getUniformLocation(shaderProgram, "translation"),
         false,
-        Matrix4x4.translate(movementVector)
+        Matrix4x4.translate(input.movement)
     );
     gl.clearColor(0.1, 0.1, 0.1, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -210,3 +201,4 @@ const render = (interp) => {
 }
 const engine = new Engine(update, render, 1000.0 / 120.0);
 engine.start();
+    console.log("test");

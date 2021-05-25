@@ -58,9 +58,12 @@ class Vector2 {
     magnitude() {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
+    magnitudeSquared() {
+        return this.x * this.x + this.y * this.y;
+    }
     normalize() {
         const m = this.magnitude();
-        this.scale(m);
+        this.scale(1 / m);
     }
     scale(s) {
         this.x *= s;
@@ -82,4 +85,10 @@ class Vector2 {
         this.x -= v2.x;
         this.y -= v2.y;
     }
+}
+
+function clamp(min, val, max) {
+    if (val < min) val = min;
+    if (val > max) val = max;
+    return val;
 }
