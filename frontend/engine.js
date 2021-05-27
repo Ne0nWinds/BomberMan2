@@ -7,6 +7,7 @@ class Engine {
         this.lastFrame = 0.0;
         this.tickRate = tickRate;
         this.frameSkip = 6 | 0;
+        this.delta = 0.0;
     }
 
     start() {
@@ -19,17 +20,17 @@ class Engine {
     }
 
     run(now) {
-        let delta = (now - this.lastFrame);
+        this.delta += (now - this.lastFrame);
         this.lastFrame = now;
         let iterations = 0 | 0;
 
-        while (delta > this.tickRate && iterations++ < this.frameSkip) {
+        while (this.delta > this.tickRate && iterations++ < this.frameSkip) {
             update(this.tickRate);
-            delta -= this.tickRate;
+            this.delta -= this.tickRate;
         }
 
-        delta = Math.min(Math.max(delta, 0.0), this.tickRate);
-        render(delta);
+        this.delta = Math.min(Math.max(this.delta, 0.0), this.tickRate);
+        render(this.delta / this.tickRate);
         this.handleRun();
     }
 }

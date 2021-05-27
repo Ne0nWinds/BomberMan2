@@ -13,7 +13,8 @@ mapRenderer.genVertices();
 const v2movement = new Vector2(0.0, 0.0);
 const update = (delta) => {
     input.update();
-    input.movement.scale(1 / delta * -1);
+    input.movement.scale((delta) * -1);
+    input.movement.scale(0.01);
     v2movement.add(input.movement);
 }
 
