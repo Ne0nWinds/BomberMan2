@@ -23,7 +23,8 @@ class Input {
             const topDown = (this.buttons & KEY_UP) - ((this.buttons & KEY_DOWN) >> 2);
             this.movement.x = leftRight;
             this.movement.y = topDown;
-            this.movement.normalize();
+            if (leftRight | topDown != 0)
+                this.movement.normalize();
             return;
         }
 

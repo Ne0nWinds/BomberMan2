@@ -10,12 +10,12 @@ class MapRenderer {
         this.mapX = MAP_MAX_X;
         this.mapY = MAP_MAX_Y;
         const size = (MAP_MAX_X * MAP_MAX_Y) | 0;
-        console.log(size);
         this.intMap = new Uint8Array(size);
         this.vertices = new Float32Array(SIZE_OF_VERTEX * size * 4);
-        this.indices = new Uint32Array(SIZE_OF_INDEX * size);
+        this.indices = new Uint16Array(SIZE_OF_INDEX * size);
         this.shaderProgram = null;
-        this.VAO = null;
+        this.EBO = null;
+        this.VBO = null;
         this.textureAtlas = null;
         this.mapTranslationUniformLocation = 0 | 0;
         this.mapTranslation = new Matrix4x4();
@@ -95,18 +95,14 @@ class MapRenderer {
             this.indices[index + 4] = 2 + i * 4;
             this.indices[index + 5] = 3 + i * 4;
         }
-        console.log(indexArrayLength);
 
-        const VBO = gl.createBuffer();
-        const EBO = gl.createBuffer();
-        this.VAO = gl.createVertexArray();
+        this.VBO = gl.createBuffer();
+        this.EBO = gl.createBuffer();
 
-        gl.bindVertexArray(this.VAO);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, VBO);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
         gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.EBO);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
 
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
@@ -127,7 +123,8 @@ class MapRenderer {
         gl.bindTexture(gl.TEXTURE_2D, this.textureAtlas);
         this.mapTranslation.translate(translation);
         gl.uniformMatrix4fv(this.mapTranslationUniformLocation, false, this.mapTranslation.data);
-        gl.bindVertexArray(this.VAO);
-        gl.drawElements(gl.TRIANGLES, 6 * (this.mapX * this.mapY), gl.UNSIGNED_INT, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.EBO);
+        gl.drawElements(gl.TRIANGLES, 6 * (this.mapX * this.mapY), gl.UNSIGNED_SHORT, 0);
     }
 }

@@ -2,7 +2,7 @@
 /** @type HTMLCanvasElement */
 const canvas = document.body.firstElementChild;
 /** @type WebGL2RenderingContext */
-const gl = canvas.getContext("webgl2");
+const gl = canvas.getContext("webgl");
 
 function loadShader(type, src) {
     const shader = gl.createShader(type);
