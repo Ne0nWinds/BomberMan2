@@ -1,39 +1,34 @@
 "use strict";
 
 class Matrix4x4 {
-    static identity() {
-        const m = new Float32Array(16);
-        m[0] = 1.0;
-        m[5] = 1.0;
-        m[10] = 1.0;
-        m[15] = 1.0;
-        return m;
+    constructor() {
+        this.data = new Float32Array(16);
     }
-    static orthographic(left, right, bottom, top, nearClip, farClip) {
-        const m = new Float32Array(16);
-        m[0] = 2.0 / (right - left);
-        m[5] = 2.0 / (top - bottom);
-        m[10] = -2.0 / (farClip - nearClip);
-        m[12] = -(right + left) / (right - left);
-        m[13] = -(top + bottom) / (top - bottom);
-        m[14] = -(farClip + nearClip) / (farClip - nearClip);
-        m[15] = 1.0;
-        return m;
+    identity() {
+        this.data[0] = 1.0;
+        this.data[5] = 1.0;
+        this.data[10] = 1.0;
+        this.data[15] = 1.0;
     }
-    static scale(scale) {
-        const m = new Float32Array(16);
-        m[0] = scale;
-        m[5] = scale;
-        m[10] = 1.0;
-        m[15] = 1.0;
-        return m;
+    orthographic(left, right, bottom, top, nearClip, farClip) {
+        this.data[0] = 2.0 / (right - left);
+        this.data[5] = 2.0 / (top - bottom);
+        this.data[10] = -2.0 / (farClip - nearClip);
+        this.data[12] = -(right + left) / (right - left);
+        this.data[13] = -(top + bottom) / (top - bottom);
+        this.data[14] = -(farClip + nearClip) / (farClip - nearClip);
+        this.data[15] = 1.0;
     }
-    static translate(v2) {
-        const m = this.identity();
-        m[12] = v2.x;
-        m[13] = v2.y;
-        m[14] = -1;
-        return m;
+    scale(scale) {
+        this.data[0] = scale;
+        this.data[5] = scale;
+        this.data[10] = 1.0;
+        this.data[15] = 1.0;
+    }
+    translate(v2) {
+        this.data[12] = v2.x;
+        this.data[13] = v2.y;
+        this.data[14] = -1;
     }
 }
 
