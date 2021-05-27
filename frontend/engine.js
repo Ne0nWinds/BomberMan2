@@ -18,8 +18,7 @@ class Engine {
         window.requestAnimationFrame(this.run.bind(this));
     }
 
-    run() {
-        let now = window.performance.now();
+    run(now) {
         let delta = (now - this.lastFrame);
         this.lastFrame = now;
         let iterations = 0 | 0;
