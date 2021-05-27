@@ -100,14 +100,17 @@ window.onkeyup = (e) => {
 }
 
 window.ontouchstart = window.ontouchmove = (e) => {
+    e.preventDefault();
     input.lastTouchMovement.x = e.touches[0].clientX;
     input.lastTouchMovement.y = e.touches[0].clientY;
 }
-window.ontouchend = () => {
+window.ontouchend = (e) => {
+    e.preventDefault();
     input.lastTouchMovement.x = 0.0;
     input.lastTouchMovement.y = 0.0;
 }
-window.ontouchcancel = () => {
+window.ontouchcancel = (e) => {
+    e.preventDefault();
     input.lastTouchMovement.x = 0.0;
     input.lastTouchMovement.y = 0.0;
 }
