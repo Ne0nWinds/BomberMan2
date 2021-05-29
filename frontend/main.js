@@ -1,12 +1,12 @@
 "use strict";
 
-const mapRenderer = new MapRenderer();
+const mapRenderer = new MapRenderer(25, 25);
 for (let i = 0 | 0; i < mapRenderer.mapY; ++i) {
     for (let j = 0 | 0; j < mapRenderer.mapX; ++j) {
-        mapRenderer.intMap[i * mapRenderer.mapY + j] = (i + j) & 1;
+        mapRenderer.intMap[i * mapRenderer.mapY + j] = (i & j) & 1;
     }
 }
-mapRenderer.textureAtlas = loadTexture("img/textureAtlas.png");
+mapRenderer.textureAtlas = loadTexture("img/TextureAtlas.png");
 mapRenderer.initShaderProgram();
 mapRenderer.genVertices();
 

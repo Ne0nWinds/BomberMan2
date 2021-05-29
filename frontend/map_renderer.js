@@ -2,13 +2,13 @@
 
 const SIZE_OF_VERTEX = 4 | 0;
 const SIZE_OF_INDEX = 6 | 0;
-const MAP_MAX_X = 32 | 0;
-const MAP_MAX_Y = 32 | 0;
+const MAP_MAX_X = 64 | 0;
+const MAP_MAX_Y = 64 | 0;
 
 class MapRenderer {
-    constructor() {
-        this.mapX = MAP_MAX_X;
-        this.mapY = MAP_MAX_Y;
+    constructor(x, y) {
+        this.mapX = x;
+        this.mapY = y;
         const size = (MAP_MAX_X * MAP_MAX_Y) | 0;
         this.intMap = new Uint8Array(size);
         this.vertices = new Float32Array(SIZE_OF_VERTEX * size * 4);
@@ -61,24 +61,25 @@ class MapRenderer {
         for (let y = 0 | 0; y < this.mapY; ++y) {
             for (let x = 0 | 0; x < this.mapX; ++x) {
                 const intMapLoc = (y * this.mapX + x) | 0;
+                console.log(this.intMap[intMapLoc]);
                 this.vertices[loc + 0] = x + 1.0;
                 this.vertices[loc + 1] = y + 1.0;
-                this.vertices[loc + 2] = (this.intMap[intMapLoc]) ? 0.5 : 0.0;
+                this.vertices[loc + 2] = (this.intMap[intMapLoc] + 1) / 3;
                 this.vertices[loc + 3] = 0.0;
 
                 this.vertices[loc + 4] = x + 1.0;
                 this.vertices[loc + 5] = y;
-                this.vertices[loc + 6] = (this.intMap[intMapLoc]) ? 0.5 : 0.0;
+                this.vertices[loc + 6] = (this.intMap[intMapLoc] + 1) / 3;
                 this.vertices[loc + 7] = 1.0;
 
                 this.vertices[loc + 8] = x;
                 this.vertices[loc + 9] = y;
-                this.vertices[loc + 10] = (this.intMap[intMapLoc]) ? 1.0 : 0.5;
+                this.vertices[loc + 10] = (this.intMap[intMapLoc]) / 3;
                 this.vertices[loc + 11] = 1.0;
 
                 this.vertices[loc + 12] = x;
                 this.vertices[loc + 13] = y + 1.0;
-                this.vertices[loc + 14] = (this.intMap[intMapLoc]) ? 1.0 : 0.5;
+                this.vertices[loc + 14] = (this.intMap[intMapLoc]) / 3;
                 this.vertices[loc + 15] = 0.0;
 
                 loc += locIncrement;
