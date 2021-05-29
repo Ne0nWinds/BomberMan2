@@ -61,7 +61,6 @@ class MapRenderer {
         for (let y = 0 | 0; y < this.mapY; ++y) {
             for (let x = 0 | 0; x < this.mapX; ++x) {
                 const intMapLoc = (y * this.mapX + x) | 0;
-                console.log(this.intMap[intMapLoc]);
                 this.vertices[loc + 0] = x + 1.0;
                 this.vertices[loc + 1] = y + 1.0;
                 this.vertices[loc + 2] = (this.intMap[intMapLoc] + 1) / 3;
@@ -105,12 +104,6 @@ class MapRenderer {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.EBO);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
-
-        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
-        gl.enableVertexAttribArray(0);
-
-        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
-        gl.enableVertexAttribArray(1);
     }
     render(translation) {
         gl.useProgram(this.shaderProgram);
@@ -126,6 +119,10 @@ class MapRenderer {
         gl.uniformMatrix4fv(this.mapTranslationUniformLocation, false, this.mapTranslation.data);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.EBO);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
+        gl.enableVertexAttribArray(1);
         gl.drawElements(gl.TRIANGLES, 6 * (this.mapX * this.mapY), gl.UNSIGNED_SHORT, 0);
     }
 }

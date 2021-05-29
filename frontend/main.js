@@ -10,6 +10,10 @@ mapRenderer.textureAtlas = loadTexture("img/TextureAtlas.png");
 mapRenderer.initShaderProgram();
 mapRenderer.genVertices();
 
+const players = new Players();
+players.initShaderProgram();
+players.genVertices();
+
 const v2movement = new Vector2(0.0, 0.0);
 const update = (delta) => {
     input.update();
@@ -22,6 +26,7 @@ const render = (interp) => {
     gl.clearColor(0.1, 0.1, 0.1, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     mapRenderer.render(v2movement);
+    players.render();
 }
-const engine = new Engine(update, render, 1000.0 / 120.0);
+const engine = new Engine(update, render, 1000.0 / 96.0);
 engine.start();
