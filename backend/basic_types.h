@@ -18,5 +18,7 @@ enum {
 #define KB(x) (x * 1024)
 #define MB(x) (KB(x) * 1024)
 
+#define len(arr) (sizeof(arr) / sizeof(arr[0]))
+
 // TODO: Logging
 // TODO: Assert statements
