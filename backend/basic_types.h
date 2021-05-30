@@ -14,3 +14,9 @@ typedef int64_t s64;
 enum {
 	false, true
 } typedef bool;
+
+#define KB(x) (x * 1024)
+#define MB(x) (KB(x) * 1024)
+
+// TODO: Logging
+// TODO: Assert statements
