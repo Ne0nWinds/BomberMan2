@@ -1,5 +1,14 @@
 "use strict";
 
+const WEBSOCKET_DOMAIN = "ws://192.168.0.23:8080"; // Only for local testing
+
+const socket = new WebSocket(WEBSOCKET_DOMAIN);
+let socketOpened = false;
+socket.onopen = (e) => {
+    console.log("Socket Opened");
+    socketOpened = true;
+}
+
 const mapRenderer = new MapRenderer(25, 25);
 for (let i = 0 | 0; i < mapRenderer.mapY; ++i) {
     for (let j = 0 | 0; j < mapRenderer.mapX; ++j) {
@@ -17,8 +26,7 @@ players.genVertices();
 const v2movement = new Vector2(0.0, 0.0);
 const update = (delta) => {
     input.update();
-    input.movement.scale((delta) * -1);
-    input.movement.scale(0.01);
+    input.movement.scale(delta / 300);
     v2movement.add(input.movement);
 }
 
@@ -27,6 +35,10 @@ const render = (interp) => {
     gl.clear(gl.COLOR_BUFFER_BIT);
     mapRenderer.render(v2movement);
     players.render();
+
+    if (socketOpened) {
+        socket.send(v2movement.data);
+    }
 }
-const engine = new Engine(update, render, 1000.0 / 96.0);
+const engine = new Engine(update, render, 1000.0 / 120.0);
 engine.start();

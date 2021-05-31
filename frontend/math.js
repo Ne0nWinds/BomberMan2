@@ -26,8 +26,8 @@ class Matrix4x4 {
         this.data[15] = 1.0;
     }
     translate(v2) {
-        this.data[12] = v2.x;
-        this.data[13] = v2.y;
+        this.data[12] = -v2.x;
+        this.data[13] = -v2.y;
         this.data[14] = -1;
     }
 }

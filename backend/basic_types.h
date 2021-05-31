@@ -11,9 +11,16 @@ typedef int16_t s16;
 typedef int32_t s32;
 typedef int64_t s64;
 
+typedef float f32;
+typedef double f64;
+
 enum {
 	false, true
 } typedef bool;
+
+struct {
+	f32 x, y;
+} typedef v2;
 
 #define KB(x) (x * 1024)
 #define MB(x) (KB(x) * 1024)

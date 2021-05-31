@@ -1,27 +1,32 @@
 #include "basic_types.h"
 #include "sha1.c"
 #include <netdb.h>
+#include <fcntl.h>
 #include <sys/socket.h>
 
-void ParseDataFrame(u8 *Buffer, u32 Length) {
-	bool FIN = (Buffer[0] & 128) != 0;
-	bool RSV2 = (Buffer[0] & 64) != 0;
-	bool RSV3 = (Buffer[0] & 32) != 0;
-	bool RSV4 = (Buffer[0] & 16) != 0;
-	bool OpCode = Buffer[0] & 15;
+u8 ParseDataFrame(u8 *Buffer, u8 *PayloadLen) {
+	bool FIN = (Buffer[0] & 128) != 0; // Should always be 1
+	bool RSV2 = (Buffer[0] & 64) != 0; // Should always be 0
+	bool RSV3 = (Buffer[0] & 32) != 0; // Should always be 0
+	bool RSV4 = (Buffer[0] & 16) != 0; // Should always be 0
+	u8 OpCode = Buffer[0] & 15;
 
-	u8 MASKEnabled = (Buffer[1] & 128) != 0;
-	u8 PayloadLen = Buffer[1] & 127;
+	u8 MASKEnabled = (Buffer[1] & 128) != 0; // Should always be 1
+	u8 _PayloadLen = Buffer[1] & 127; // Should never be equal to 126 / 127
+	*PayloadLen = _PayloadLen;
 
 	u8 *MaskKey = Buffer + 2;
 
-	for (u32 i = 6; i < Length; i += 4) {
+	_PayloadLen += 6;
+	for (u32 i = 6; i < _PayloadLen; i += 4) {
 		for (u32 j = 0; j < 4; ++j) {
 			Buffer[i + j] = Buffer[i + j] ^ MaskKey[j];
 		}
 	}
 
-	Buffer[Length] = 0;
+	f32 *data = (f32 *)(Buffer + 6);
+
+	return OpCode;
 }
 
 static const char b64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -52,17 +57,18 @@ static void b64_encode(const unsigned char *in, char *out) {
 	}
 }
 
-static u8 Buffer[KB(1)] = {0};
-
 s32 AcceptNewConnection(s32 ListenSocket) {
+	static u8 Buffer[KB(1)];
+
 	struct sockaddr_in AcceptInfo = {0};
 	u32 AcceptInfoLength = sizeof(AcceptInfo);
 	s32 Connection = accept(ListenSocket, (struct sockaddr *)&AcceptInfo, &AcceptInfoLength);
 
-	recv(Connection, Buffer, 1023, 0);
+	fcntl(ListenSocket, F_SETFL, O_NONBLOCK);
+
+	recv(Connection, Buffer, len(Buffer) - 1, 0);
 
 	static char RequestHeader[] = "Sec-WebSocket-Key: ";
-	bool FoundHeader = false;
 	u32 i = 0;
 	for (; i < len(Buffer); ++i) {
 
