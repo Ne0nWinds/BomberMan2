@@ -1,25 +1,25 @@
 "use strict";
 
-const MAX_PLAYERS = 16 | 0;
+const MAX_PLAYERS = 32 | 0;
 
 class Players {
     constructor() {
         this.position = new Float32Array(2);
         this.velocity = new Float32Array(2);
         this.shaderProgram = null;
-        this.vertices = null;
-        this.indices = null;
+        this.playerLocations = new Float32Array(MAX_PLAYERS * 2 + 2);
         this.VBO = null;
-        this.EBO = null;
+        this.IBO = null;
     }
     initShaderProgram() {
         const vertexSrc = `
             attribute vec2 aVertexPosition;
+            attribute vec2 translation;
 
             uniform mat4 projection;
 
             void main() {
-                gl_Position = projection * vec4(aVertexPosition, -1.0, 1.0);
+                gl_Position = projection * vec4(aVertexPosition + translation, -1.0, 1.0);
             }
         `;
 
@@ -40,25 +40,31 @@ class Players {
         gl.deleteShader(fragmentShader);
     }
     genVertices() {
-        this.VBO = gl.createBuffer();
-        this.EBO = gl.createBuffer();
+        const vertices = new Float32Array([
+            0.2,  0.2,
+            0.2, -0.2,
+            -0.2,  0.2,
 
-        this.vertices = new Float32Array([
-            0.2, 0.2,
             0.2, -0.2,
             -0.2, -0.2,
-            -0.2, 0.2
-        ]);
-        this.indices = new Uint16Array([
-            0, 1, 3,
-            1, 2, 3
+            -0.2,  0.2,
         ]);
 
+        this.VBO = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 2 * 4, 0);
+        gl.enableVertexAttribArray(0);
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.EBO);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        for (let i = 0; i < this.playerLocations.length; ++i) {
+            this.playerLocations[i] = Math.random() * 8 - 4;
+        }
+
+        this.IBO = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.IBO);
+        gl.bufferData(gl.ARRAY_BUFFER, this.playerLocations, gl.DYNAMIC_DRAW);
+        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 2 * 4, 0);
+        gl.enableVertexAttribArray(1);
     }
     render() {
         gl.useProgram(this.shaderProgram);
@@ -70,9 +76,19 @@ class Players {
             ortho.data
         );
         gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.EBO);
-        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 8, 0);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 2 * 4, 0);
         gl.enableVertexAttribArray(0);
-        gl.drawElements(gl.TRIANGLES, 6 * 1, gl.UNSIGNED_SHORT, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.IBO);
+        for (let i = 0; i < this.playerLocations.length; ++i) {
+            this.playerLocations[i] += Math.random() / 5 - 0.1;
+        }
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.playerLocations);
+        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 2 * 4, 0);
+        gl.enableVertexAttribArray(1);
+
+        gl_ext.vertexAttribDivisorANGLE(1, 1);
+        gl_ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, 6, MAX_PLAYERS + 1);
+        gl_ext.vertexAttribDivisorANGLE(1, 0);
     }
 }

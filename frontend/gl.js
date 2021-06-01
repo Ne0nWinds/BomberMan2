@@ -3,6 +3,7 @@
 const canvas = document.body.firstElementChild;
 /** @type WebGL2RenderingContext */
 const gl = canvas.getContext("webgl");
+const gl_ext = gl.getExtension('ANGLE_instanced_arrays');
 
 function loadShader(type, src) {
     const shader = gl.createShader(type);
