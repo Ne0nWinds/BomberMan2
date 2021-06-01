@@ -63,7 +63,6 @@ s32 AcceptNewConnection(s32 ListenSocket) {
 	struct sockaddr_in AcceptInfo = {0};
 	u32 AcceptInfoLength = sizeof(AcceptInfo);
 	s32 Connection = accept(ListenSocket, (struct sockaddr *)&AcceptInfo, &AcceptInfoLength);
-
 	fcntl(ListenSocket, F_SETFL, O_NONBLOCK);
 
 	recv(Connection, Buffer, len(Buffer) - 1, 0);

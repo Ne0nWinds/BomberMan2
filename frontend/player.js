@@ -2,18 +2,6 @@
 
 const MAX_PLAYERS = 16 | 0;
 
-class NetworkedPlayer {
-    constructor() {
-
-    }
-}
-
-class LocalPlayer {
-    constructor() {
-
-    }
-}
-
 class Players {
     constructor() {
         this.position = new Float32Array(2);

@@ -5,8 +5,11 @@ const WEBSOCKET_DOMAIN = "ws://192.168.0.23:8080"; // Only for local testing
 const socket = new WebSocket(WEBSOCKET_DOMAIN);
 let socketOpened = false;
 socket.onopen = (e) => {
-    console.log("Socket Opened");
     socketOpened = true;
+    socket.onmessage = async (e) => {
+        let f = new Float32Array(await e.data.arrayBuffer());
+        console.log(f);
+    }
 }
 
 const mapRenderer = new MapRenderer(25, 25);

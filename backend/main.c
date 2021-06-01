@@ -25,7 +25,10 @@ static struct {
 u32 AddPlayer(s32 SocketId) {
 	for (u32 i = 0; i < MAX_PLAYERS_PER_GAME; ++i) {
 		if (Players.SocketIds[i] == 0) {
+			printf("%d\n", SocketId);
 			Players.SocketIds[i] = SocketId;
+			Players.Positions[i].x = 0;
+			Players.Positions[i].y = 0;
 			return i;
 		}
 	}
@@ -77,6 +80,7 @@ int main() {
 				epoll_ctl(WebSocketEpoll, EPOLL_CTL_DEL, fd, NULL);
 				DeletePlayer(PlayerIndex);
 				close(fd);
+				printf("Delete Player: %u\n", PlayerIndex);
 			} else {
 				u8 PayloadLength = 0;
 				u8 OpCode = ParseDataFrame(Buffer, &PayloadLength);
@@ -87,6 +91,26 @@ int main() {
 				}
 			}
 		}
+
+		usleep(1000000 / 20);
+
+		Buffer[0] = 128 | 2;
+		Buffer[1] = 0;
+		for (u32 i = 0; i < 2; ++i) {
+			f32 *data = (f32 *)(Buffer + 2);
+			if (Players.SocketIds[i] != 0) {
+				Buffer[1] += 8;
+				data[i * 2] = Players.Positions[i].x;
+				data[i * 2 + 1] = Players.Positions[i].y;
+			}
+		}
+
+		for (u32 i = 0; i < MAX_PLAYERS_PER_GAME; ++i) {
+			if (Players.SocketIds[i] != 0) {
+				send(Players.SocketIds[i], Buffer, 2 + Buffer[1], 0);
+			}
+		}
+
 	}
 
 	return 0;
