@@ -83,11 +83,25 @@ int main() {
 				printf("Delete Player: %u\n", PlayerIndex);
 			} else {
 				u8 PayloadLength = 0;
-				u8 OpCode = ParseDataFrame(Buffer, &PayloadLength);
-				if (OpCode == 0x2) {
-					f32 *data = (f32 *)((u8 *)Buffer + 6);
-					Players.Positions[PlayerIndex].x = data[0];
-					Players.Positions[PlayerIndex].y = data[1];
+				WebSocketOpCode OpCode = ParseDataFrame(Buffer, &PayloadLength);
+				u8 *Data = Buffer + 6;
+				switch (OpCode) {
+					case OP_TEXT: break;
+					case OP_BIN: {
+						Players.Positions[PlayerIndex] = *(v2 *)Data;
+					} break;
+					case OP_CLOSE: {
+						epoll_ctl(WebSocketEpoll, EPOLL_CTL_DEL, fd, NULL);
+						DeletePlayer(PlayerIndex);
+						close(fd);
+						printf("Delete Player: %u\n", PlayerIndex);
+					} break;
+					case OP_PING: {
+						Buffer[0] = 128 | OP_PONG;
+						Buffer[1] = 0;
+						send(fd, Buffer, 2, 0);
+					} break;
+					case OP_PONG: break;
 				}
 			}
 		}

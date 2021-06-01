@@ -1,5 +1,6 @@
 #include "basic_types.h"
 #include "sha1.c"
+#include "websocket.h"
 #include <netdb.h>
 #include <fcntl.h>
 #include <sys/socket.h>
