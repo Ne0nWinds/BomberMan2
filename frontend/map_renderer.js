@@ -63,12 +63,12 @@ class MapRenderer {
                 const intMapLoc = (y * this.mapX + x) | 0;
                 this.vertices[loc + 0] = x + 1.0;
                 this.vertices[loc + 1] = y + 1.0;
-                this.vertices[loc + 2] = (this.intMap[intMapLoc] + 1) / 3;
+                this.vertices[loc + 2] = (this.intMap[intMapLoc] + 1) / 3 - (0.5 / 256);
                 this.vertices[loc + 3] = 0.0;
 
                 this.vertices[loc + 4] = x + 1.0;
                 this.vertices[loc + 5] = y;
-                this.vertices[loc + 6] = (this.intMap[intMapLoc] + 1) / 3;
+                this.vertices[loc + 6] = (this.intMap[intMapLoc] + 1) / 3 - (0.5 / 256);
                 this.vertices[loc + 7] = 1.0;
 
                 this.vertices[loc + 8] = x;
