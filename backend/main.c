@@ -106,8 +106,6 @@ int main() {
 			}
 		}
 
-		usleep(1000000 / 20);
-
 		Buffer[0] = 128 | 2;
 		Buffer[1] = 0;
 		for (u32 i = 0; i < 2; ++i) {
@@ -125,6 +123,7 @@ int main() {
 			}
 		}
 
+		usleep(1000000 / 30);
 	}
 
 	return 0;

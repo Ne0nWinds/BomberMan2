@@ -3,14 +3,7 @@
 const WEBSOCKET_DOMAIN = "ws://192.168.0.23:8080"; // Only for local testing
 
 const socket = new WebSocket(WEBSOCKET_DOMAIN);
-let socketOpened = false;
-socket.onopen = (e) => {
-    socketOpened = true;
-    socket.onmessage = async (e) => {
-        let f = new Float32Array(await e.data.arrayBuffer());
-        console.log(f);
-    }
-}
+socket.binaryType = "arraybuffer";
 
 const mapRenderer = new MapRenderer(25, 25);
 for (let i = 0 | 0; i < mapRenderer.mapY; ++i) {
@@ -26,6 +19,12 @@ const players = new Players();
 players.initShaderProgram();
 players.genVertices();
 
+socket.onopen = (e) => {
+    socket.onmessage = async (e) => {
+        players.playerLocations.set(new Float32Array(e.data), 2);
+    }
+}
+
 const v2movement = new Vector2(0.0, 0.0);
 const update = (delta) => {
     input.update();
@@ -37,9 +36,9 @@ const render = (interp) => {
     gl.clearColor(0.1, 0.1, 0.1, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     mapRenderer.render(v2movement);
-    players.render();
+    players.render(v2movement);
 
-    if (socketOpened) {
+    if (socket.readyState == WebSocket.OPEN) {
         socket.send(v2movement.data);
     }
 }

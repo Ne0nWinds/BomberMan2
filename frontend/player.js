@@ -14,12 +14,13 @@ class Players {
     initShaderProgram() {
         const vertexSrc = `
             attribute vec2 aVertexPosition;
-            attribute vec2 translation;
+            attribute vec2 playerTranslation;
 
             uniform mat4 projection;
+            uniform vec2 worldTranslation;
 
             void main() {
-                gl_Position = projection * vec4(aVertexPosition + translation, -1.0, 1.0);
+                gl_Position = projection * vec4(aVertexPosition + playerTranslation - worldTranslation, -1.0, 1.0);
             }
         `;
 
@@ -39,7 +40,7 @@ class Players {
         gl.deleteShader(vertexShader);
         gl.deleteShader(fragmentShader);
     }
-    genVertices() {
+    genVertices(translation) {
         const vertices = new Float32Array([
             0.2,  0.2,
             0.2, -0.2,
@@ -56,17 +57,13 @@ class Players {
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 2 * 4, 0);
         gl.enableVertexAttribArray(0);
 
-        for (let i = 0; i < this.playerLocations.length; ++i) {
-            this.playerLocations[i] = Math.random() * 8 - 4;
-        }
-
         this.IBO = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.IBO);
         gl.bufferData(gl.ARRAY_BUFFER, this.playerLocations, gl.DYNAMIC_DRAW);
         gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 2 * 4, 0);
         gl.enableVertexAttribArray(1);
     }
-    render() {
+    render(translation) {
         gl.useProgram(this.shaderProgram);
         const ortho = new Matrix4x4();
         ortho.orthographic(-canvas.clientWidth / 256 / devicePixelRatio, canvas.clientWidth / 256 / devicePixelRatio, -canvas.clientHeight / 256 / devicePixelRatio, canvas.clientHeight / 256 / devicePixelRatio, 0.1, 100.0)
@@ -75,14 +72,13 @@ class Players {
             false,
             ortho.data
         );
+        this.playerLocations.set(translation.data);
+        gl.uniform2fv(gl.getUniformLocation(this.shaderProgram, "worldTranslation"), translation.data);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 2 * 4, 0);
         gl.enableVertexAttribArray(0);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.IBO);
-        for (let i = 0; i < this.playerLocations.length; ++i) {
-            this.playerLocations[i] += Math.random() / 5 - 0.1;
-        }
         gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.playerLocations);
         gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 2 * 4, 0);
         gl.enableVertexAttribArray(1);
